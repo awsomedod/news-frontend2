@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+/* Global base styles using Tailwind's @layer directive */
+@layer base {
+  :root {
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply m-0 min-h-screen;
+    @apply bg-gray-50 text-gray-900;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      @apply bg-gray-900 text-white/87;
+    }
+  }
+}
+
+/* Custom component styles */
+@layer components {
+  .btn-primary {
+    @apply px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg border border-transparent;
+    @apply hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/50;
+    @apply transition-colors duration-200 cursor-pointer;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .btn-primary {
+      @apply bg-blue-500 hover:bg-blue-600;
+    }
+  }
+
+  .link-primary {
+    @apply font-medium text-blue-600 no-underline hover:text-blue-700 transition-colors;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .link-primary {
+      @apply text-blue-400 hover:text-blue-300;
+    }
+  }
+}

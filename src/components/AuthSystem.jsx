@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { Tab, Dialog, Transition } from "@headlessui/react";
-import { Fragment } from "react";
+import { useState, useRef, useEffect } from "react";
+import { Tab } from "@headlessui/react";
 import {
   AtSymbolIcon,
   UserCircleIcon,
@@ -212,7 +211,6 @@ function LoginPanel({ onAuthenticated, onGoSignUp }) {
   }
 
   async function handleSubmit(e) {
-    console.log("logging in");
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
@@ -276,11 +274,23 @@ function LoginPanel({ onAuthenticated, onGoSignUp }) {
         Sign in
         <ArrowRightIcon className="h-4 w-4" />
       </PrimaryButton>
+      <div className="relative my-4">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-200 dark:border-gray-700" />
+        </div>
+        <div className="relative flex justify-center">
+          <span className="bg-white px-2 text-xs text-gray-500 dark:bg-gray-900 dark:text-gray-400">
+            or
+          </span>
+        </div>
+      </div>
+      <GoogleLogin onAuthenticated={onAuthenticated} />
     </form>
   );
 }
 
 function SignUpPanel({ onAuthenticated, onGoLogin }) {
+  // Email/password state
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -290,37 +300,35 @@ function SignUpPanel({ onAuthenticated, onGoLogin }) {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  function validate() {
+  // Google-signup-only username
+  const [googleUsername, setGoogleUsername] = useState("");
+  const [googleErrors, setGoogleErrors] = useState({});
+
+  function validateEmailPassword() {
     const next = {};
     if (!email.trim()) next.email = "Email is required.";
     else if (!validateEmail(email)) next.email = "Enter a valid email address.";
     if (!username.trim()) next.username = "Username is required.";
-    else if (!validateUsername(username)) next.username = "3–30 chars, alphanumeric and underscores only.";
+    else if (!validateUsername(username)) next.username = "3–30 chars, alphanumeric and underscores only. 2222";
     if (!password) next.password = "Password is required.";
     else if (password.length < 8) next.password = "Password must be at least 8 characters.";
     if (!confirm) next.confirm = "Confirm your password.";
     else if (confirm !== password) next.confirm = "Passwords do not match.";
-    console.log(next);
     setErrors(next);
     return Object.keys(next).length === 0;
   }
 
   async function handleSubmit(e) {
-    console.log("registering1");
     e.preventDefault();
-    console.log("registering2");
-    if (!validate()) return;
-    console.log("registering3");
+    if (!validateEmailPassword()) return;
     setLoading(true);
     try {
-      console.log("registering400");
       const api = await import("../api/auth");
       const { user } = await api.register({
         email,
         username,
         password,
       });
-      // After successful register, auto-login to obtain token for persistence
       const identifier = username || email;
       const loginRes = await api.login({ identifier, password });
       try {
@@ -329,15 +337,12 @@ function SignUpPanel({ onAuthenticated, onGoLogin }) {
       } catch {}
       onAuthenticated?.({ ...loginRes.user, token: loginRes.token });
     } catch (err) {
-      // Map known server errors to fields
       const message = err?.message || "Registration failed";
       const next = {};
       if (err?.status === 409) {
         if ((err.data?.error || "").toLowerCase().includes("username")) next.username = "Username already taken";
         if ((err.data?.error || "").toLowerCase().includes("email")) next.email = "Email already registered";
       } else if (err?.status === 400) {
-        // Bad request validation error from server
-        // Attach to a generic form error on password to surface it
         next.password = message;
       } else {
         next.password = message;
@@ -349,66 +354,260 @@ function SignUpPanel({ onAuthenticated, onGoLogin }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <TextField
-        id="email"
-        label="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="you@example.com"
-        error={errors.email}
-        icon={<AtSymbolIcon className="h-5 w-5" />}
-        autoComplete="email"
-      />
-      <TextField
-        id="username"
-        label="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="your_username"
-        error={errors.username}
-        icon={<UserCircleIcon className="h-5 w-5" />}
-        autoComplete="username"
-      />
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div className="space-y-5">
+      {/* Email/password registration form */}
+      <form onSubmit={handleSubmit} className="space-y-5">
         <TextField
-          id="password"
-          label="Password"
-          type={showPw ? "text" : "password"}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="••••••••"
-          error={errors.password}
-          icon={<LockClosedIcon className="h-5 w-5" />}
-          rightIcon={showPw ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
-          onRightIconClick={() => setShowPw((s) => !s)}
-          autoComplete="new-password"
+          id="email"
+          label="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@example.com"
+          error={errors.email}
+          icon={<AtSymbolIcon className="h-5 w-5" />}
+          autoComplete="email"
         />
         <TextField
-          id="confirm"
-          label="Confirm password"
-          type={showPw2 ? "text" : "password"}
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-          placeholder="••••••••"
-          error={errors.confirm}
-          icon={<LockClosedIcon className="h-5 w-5" />}
-          rightIcon={showPw2 ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
-          onRightIconClick={() => setShowPw2((s) => !s)}
-          autoComplete="new-password"
+          id="username"
+          label="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="your_username"
+          error={errors.username}
+          icon={<UserCircleIcon className="h-5 w-5" />}
+          autoComplete="username"
         />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <TextField
+            id="password"
+            label="Password"
+            type={showPw ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            error={errors.password}
+            icon={<LockClosedIcon className="h-5 w-5" />}
+            rightIcon={showPw ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+            onRightIconClick={() => setShowPw((s) => !s)}
+            autoComplete="new-password"
+          />
+          <TextField
+            id="confirm"
+            label="Confirm password"
+            type={showPw2 ? "text" : "password"}
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            placeholder="••••••••"
+            error={errors.confirm}
+            icon={<LockClosedIcon className="h-5 w-5" />}
+            rightIcon={showPw2 ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+            onRightIconClick={() => setShowPw2((s) => !s)}
+            autoComplete="new-password"
+          />
+        </div>
+        <PrimaryButton type="submit" loading={loading}>
+          Create account
+          <ArrowRightIcon className="h-4 w-4" />
+        </PrimaryButton>
+      </form>
+
+      {/* Divider */}
+      <div className="relative my-2">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-200 dark:border-gray-700" />
+        </div>
+        <div className="relative flex justify-center">
+          <span className="bg-white px-2 text-xs text-gray-500 dark:bg-gray-900 dark:text-gray-400">
+            or sign up with Google
+          </span>
+        </div>
       </div>
-      <PrimaryButton type="submit" loading={loading}>
-        Create account
-        <ArrowRightIcon className="h-4 w-4" />
-      </PrimaryButton>
+
+      {/* Google sign-up section with its own username field */}
+      <div className="space-y-3">
+        <TextField
+          id="google_username"
+          label="Username (for Google sign up)"
+          value={googleUsername}
+          onChange={(e) => {
+            const v = e.target.value;
+            setGoogleUsername(v);
+            // clear inline error as the user types
+            setGoogleErrors((prev) => ({ ...prev, username: undefined }));
+          }}
+          placeholder="your_username"
+          error={googleErrors.username}
+          icon={<UserCircleIcon className="h-5 w-5" />}
+          autoComplete="username"
+        />
+        <GoogleSignup username={googleUsername} setErrors={setGoogleErrors} onAuthenticated={onAuthenticated} />
+      </div>
+
       <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-        Already have an account?
-        {" "}
+        Already have an account?{" "}
         <button type="button" onClick={onGoLogin} className="link-primary">
           Log in
         </button>
       </div>
-    </form>
+    </div>
+  );
+}
+
+/**
+ * Google Login button logic: obtains id_token, posts to /login/google, persists on success.
+ */
+function GoogleLogin({ onAuthenticated }) {
+  const [err, setErr] = useState("");
+  const [initialized, setInitialized] = useState(false);
+  const containerId = "google-login-btn";
+
+  async function mountButton() {
+    setErr("");
+    try {
+      const { renderGoogleButton } = await import("../api/google");
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      await renderGoogleButton(
+        el,
+        { theme: "outline", size: "large", text: "signin_with" },
+        async (id_token) => {
+          try {
+            const { loginWithGoogle } = await import("../api/auth");
+            const { token, user } = await loginWithGoogle({ id_token });
+            try {
+              localStorage.setItem("auth_token", token);
+              localStorage.setItem("auth_user", JSON.stringify(user));
+            } catch {}
+            onAuthenticated?.({ ...user, token });
+          } catch (e) {
+            setErr(e?.message || "Google login failed");
+          }
+        }
+      );
+      setInitialized(true);
+    } catch (e) {
+      setErr(e?.message || "Failed to initialize Google button");
+    }
+  }
+
+  // Mount on first render
+  if (!initialized) {
+    // Delay to ensure the element is in DOM
+    setTimeout(mountButton, 0);
+  }
+
+  return (
+    <div className="space-y-2">
+      <div id={containerId} className="w-full flex justify-center" />
+      {err ? (
+        <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+          <ExclamationCircleIcon className="h-4 w-4" />
+          {err}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * Google Signup button logic: validates username, checks availability, gets id_token, posts to /signup/google.
+ */
+function GoogleSignup({ username, setErrors, onAuthenticated }) {
+  const [err, setErr] = useState("");
+  const [initialized, setInitialized] = useState(false);
+  const containerId = "google-signup-btn";
+
+  // Proper synced ref for latest username to avoid stale closures
+  const usernameRef = useRef(username);
+  useEffect(() => {
+    usernameRef.current = username;
+  }, [username]);
+
+  function validateUsernameLocal(u) {
+    const candidate = (u || "").trim();
+    const re = /^[A-Za-z0-9_]{3,30}$/;
+    return re.test(candidate);
+  }
+
+  async function mountButton() {
+    setErr("");
+    try {
+      const { renderGoogleButton } = await import("../api/google");
+      const el = document.getElementById(containerId);
+      if (!el) return;
+
+      await renderGoogleButton(
+        el,
+        { theme: "outline", size: "large", text: "signup_with" },
+        async (id_token) => {
+          try {
+            // Always read the latest value from ref to avoid stale closures
+            const latest = usernameRef.current;
+            // use trimmed candidate for all checks/calls
+            const candidate = (latest || "").trim();
+
+            // clear inline error first
+            setErrors?.((prev) => ({ ...prev, username: undefined }));
+
+            if (!candidate) {
+              setErrors?.((prev) => ({ ...prev, username: "Username is required" }));
+              return;
+            }
+            if (!validateUsernameLocal(candidate)) {
+              setErrors?.((prev) => ({ ...prev, username: "3–30 chars, alphanumeric and underscores only." }));
+              return;
+            }
+
+            const api = await import("../api/auth");
+            // Pre-check availability
+            const avail = await api.checkUsername(candidate);
+            if (!avail?.available) {
+              setErrors?.((prev) => ({ ...prev, username: "Username is already taken" }));
+              return;
+            }
+
+            const { token, user } = await api.signupWithGoogle({ id_token, username: candidate });
+            try {
+              localStorage.setItem("auth_token", token);
+              localStorage.setItem("auth_user", JSON.stringify(user));
+            } catch {}
+            onAuthenticated?.({ ...user, token });
+          } catch (e) {
+            const message = e?.message || "Google signup failed";
+            if (e?.status === 409) {
+              if ((e.data?.error || "").toLowerCase().includes("username")) {
+                setErrors?.((prev) => ({ ...prev, username: "Username already taken" }));
+              } else if ((e.data?.error || "").toLowerCase().includes("email")) {
+                setErr("Email already registered. Try Google login instead.");
+              } else {
+                setErr(message);
+              }
+            } else {
+              setErr(message);
+            }
+          }
+        }
+      );
+
+      setInitialized(true);
+    } catch (e) {
+      setErr(e?.message || "Failed to initialize Google button");
+    }
+  }
+
+  if (!initialized) {
+    setTimeout(mountButton, 0);
+  }
+
+  return (
+    <div className="space-y-2">
+      <div id={containerId} className="w-full flex justify-center" />
+      {err ? (
+        <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+          <ExclamationCircleIcon className="h-4 w-4" />
+          {err}
+        </p>
+      ) : null}
+    </div>
   );
 }

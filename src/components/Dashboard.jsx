@@ -153,13 +153,13 @@ export default function Dashboard({ user, onLogout }) {
   ];
 
   const NavList = () => (
-    <>
+    <Fragment>
       {navigation.map((item) =>
         item.children ? (
           <li key={item.name}>
             <Disclosure>
               {({ open }) => (
-                <>
+                <div>
                   <Disclosure.Button
                     className={classNames(
                       "flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
@@ -183,7 +183,7 @@ export default function Dashboard({ user, onLogout }) {
                       ))}
                     </ul>
                   </Disclosure.Panel>
-                </>
+                </div>
               )}
             </Disclosure>
           </li>
@@ -201,7 +201,7 @@ export default function Dashboard({ user, onLogout }) {
           </li>
         )
       )}
-    </>
+    </Fragment>
   );
 
   return (

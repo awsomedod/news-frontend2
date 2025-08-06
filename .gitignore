@@ -23,6 +23,14 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.development
+.env.production
+
+# Firebase CLI local cache
+.firebase/
+
+# Firebase debug log (if you ever get errors and the CLI writes this)
+firebase-debug.log*
 
 # Cache directories
 .npm

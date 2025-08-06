@@ -38,7 +38,7 @@ function loadGisScript() {
  * If you want a rendered button, you can alternatively use renderButton + prompt.
  */
 export async function getGoogleIdToken() {
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const clientId = "802693362877-2ad452kd7mmm9jlgje6aigfunsb3065g.apps.googleusercontent.com";
   if (!clientId) {
     throw new Error("Missing VITE_GOOGLE_CLIENT_ID. Set it in your environment.");
   }
@@ -92,7 +92,7 @@ export async function getGoogleIdToken() {
  *   renderGoogleButton(containerEl, { theme: "outline", size: "large" }, (idToken) => { ... });
  */
 export async function renderGoogleButton(containerEl, options = {}, onCredential) {
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const clientId = "802693362877-2ad452kd7mmm9jlgje6aigfunsb3065g.apps.googleusercontent.com";
   if (!clientId) {
     throw new Error("Missing VITE_GOOGLE_CLIENT_ID. Set it in your environment.");
   }

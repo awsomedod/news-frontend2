@@ -2,23 +2,21 @@ import { Fragment, useState, useEffect } from "react";
 import { Dialog, Menu, Transition, Disclosure } from "@headlessui/react";
 import {
   Bars3Icon,
-  BellIcon,
   ChevronDownIcon,
   PlusIcon,
-  Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
   UserCircleIcon,
   HomeIcon,
-  ChartBarIcon,
-  ListBulletIcon,
+  Squares2X2Icon,
 } from "@heroicons/react/24/outline";
 
 // Import utility and components
 import { classNames } from "../utils/classNames";
-import { StatCard } from "./ui/StatCard";
 import { Card } from "./ui/Card";
 import { Sources } from "./Sources";
 import { MobileSidebar } from "./MobileSidebar";
+import { SummaryRuns } from "./SummaryRuns";
+import { RefreshNewsButton } from "./ui/RefreshNewsButton";
 
 export default function Dashboard({ user, onLogout }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -109,6 +107,12 @@ export default function Dashboard({ user, onLogout }) {
     }
   };
 
+  // Function to handle news generation completion
+  const handleNewsGenerated = async () => {
+    // Refresh user data to show new summary runs
+    await fetchUserData();
+  };
+
   // Fetch user data when component mounts
   useEffect(() => {
     fetchUserData();
@@ -116,17 +120,6 @@ export default function Dashboard({ user, onLogout }) {
 
   const navigation = [
     { name: "Home", icon: <HomeIcon className="h-5 w-5" />, current: true },
-    {
-      name: "Analytics",
-      icon: <ChartBarIcon className="h-5 w-5" />,
-      children: [
-        { name: "Overview", current: false },
-        { name: "Engagement", current: false },
-        { name: "Conversions", current: false },
-      ],
-    },
-    { name: "Tasks", icon: <ListBulletIcon className="h-5 w-5" />, current: false },
-    { name: "Settings", icon: <Cog6ToothIcon className="h-5 w-5" />, current: false },
   ];
 
   const NavList = () => (
@@ -195,7 +188,9 @@ export default function Dashboard({ user, onLogout }) {
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-30 lg:flex lg:w-64 lg:flex-col">
         <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-4 py-6 dark:border-gray-800 dark:bg-gray-900">
           <div className="flex h-9 items-center gap-2">
-            <div className="h-9 w-9 rounded-lg bg-blue-600/10 p-2 ring-1 ring-blue-600/20 dark:bg-blue-500/10 dark:ring-blue-500/20" />
+            <div className="h-9 w-9 rounded-lg bg-blue-600/10 p-2 ring-1 ring-blue-600/20 dark:bg-blue-500/10 dark:ring-blue-500/20">
+              <Squares2X2Icon className="h-full w-full text-blue-600 dark:text-blue-400" />
+            </div>
             <span className="text-base font-semibold text-gray-900 dark:text-white">Dashboard</span>
           </div>
           <nav className="flex flex-1 flex-col">
@@ -229,10 +224,6 @@ export default function Dashboard({ user, onLogout }) {
             </button>
 
             <div className="ml-auto flex items-center gap-2">
-              <button className="rounded-full p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800">
-                <BellIcon className="h-5 w-5" />
-              </button>
-
               <Menu as="div" className="relative">
                 <Menu.Button className="flex items-center gap-2 rounded-full p-1 pl-2 pr-2 text-left hover:bg-gray-100 dark:hover:bg-gray-800">
                   <UserCircleIcon className="h-7 w-7 text-gray-600 dark:text-gray-300" />
@@ -265,19 +256,6 @@ export default function Dashboard({ user, onLogout }) {
                               {user?.email || "user@example.com"}
                             </div>
                           </div>
-                        )}
-                      </Menu.Item>
-                      <Menu.Item>
-                        {({ active }) => (
-                          <button
-                            className={classNames(
-                              "flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-200",
-                              active && "bg-gray-100 dark:bg-gray-800"
-                            )}
-                          >
-                            <Cog6ToothIcon className="h-4 w-4" />
-                            Settings
-                          </button>
                         )}
                       </Menu.Item>
                     </div>
@@ -315,28 +293,6 @@ export default function Dashboard({ user, onLogout }) {
               Here is what's happening with your project today.
             </p>
           </div>
-
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-            <StatCard
-              label="Active Users"
-              value="2,341"
-              delta={12}
-              icon={<UserCircleIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
-            />
-            <StatCard
-              label="Sessions"
-              value="8,902"
-              delta={-3}
-              icon={<ChartBarIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
-            />
-            <StatCard
-              label="Tasks"
-              value="37"
-              delta={8}
-              icon={<ListBulletIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
-            />
-          </div>
-
           <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
             <div className="lg:col-span-1">
               <Card title="News Sources">
@@ -356,11 +312,20 @@ export default function Dashboard({ user, onLogout }) {
             </div>
 
             <div className="lg:col-span-2">
-              <Card title="User Information">
+              <Card 
+                title="Summary Runs"
+                action={
+                  <RefreshNewsButton
+                    sources={userData?.sources || []}
+                    onNewsGenerated={handleNewsGenerated}
+                    disabled={userDataLoading || !userData}
+                  />
+                }
+              >
                 {userDataLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    <span className="ml-3 text-sm text-gray-600 dark:text-gray-400">Loading user data...</span>
+                    <span className="ml-3 text-sm text-gray-600 dark:text-gray-400">Loading summary runs...</span>
                   </div>
                 ) : userDataError ? (
                   <div className="py-8 text-center">
@@ -373,11 +338,7 @@ export default function Dashboard({ user, onLogout }) {
                     </button>
                   </div>
                 ) : userData ? (
-                  <div className="space-y-3">
-                    <pre className="text-xs text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg overflow-auto whitespace-pre-wrap">
-                      {JSON.stringify(userData, null, 2)}
-                    </pre>
-                  </div>
+                  <SummaryRuns summaryRuns={userData.summary_runs} />
                 ) : (
                   <div className="py-8 text-center">
                     <p className="text-sm text-gray-500 dark:text-gray-400">No user data available</p>

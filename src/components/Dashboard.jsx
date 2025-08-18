@@ -17,6 +17,7 @@ import { Sources } from "./Sources";
 import { MobileSidebar } from "./MobileSidebar";
 import { SummaryRuns } from "./SummaryRuns";
 import { RefreshNewsButton } from "./ui/RefreshNewsButton";
+import { NEWS_SERVICE_URL } from "../api/news_service";
 
 export default function Dashboard({ user, onLogout }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -40,7 +41,7 @@ export default function Dashboard({ user, onLogout }) {
       }
 
       // Make API request to the user endpoint
-      const response = await fetch('http://127.0.0.1:5000/user', {
+      const response = await fetch(`${NEWS_SERVICE_URL}/user`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -75,7 +76,7 @@ export default function Dashboard({ user, onLogout }) {
       }
 
       // Make API request to update sources
-      const response = await fetch('http://127.0.0.1:5000/update-sources', {
+      const response = await fetch(`${NEWS_SERVICE_URL}/update-sources`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

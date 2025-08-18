@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { NEWS_SERVICE_URL } from "../../api/news_service";
 
 /**
  * RefreshNewsButton component for generating new news summaries
@@ -25,7 +26,7 @@ export function RefreshNewsButton({ sources = [], onNewsGenerated, disabled = fa
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('http://127.0.0.1:5000/generate-news', {
+      const response = await fetch(`${NEWS_SERVICE_URL}/generate-news`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

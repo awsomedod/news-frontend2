@@ -1,6 +1,7 @@
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
+import { NEWS_SERVICE_URL } from "../api/news_service";
 
 /**
  * AddSourceModal component for adding new sources manually or with AI suggestions
@@ -36,7 +37,7 @@ export function AddSourceModal({
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('http://127.0.0.1:5000/suggest-sources', {
+      const response = await fetch(`${NEWS_SERVICE_URL}/suggest-sources`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -1,10 +1,9 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Dialog, Menu, Transition, Disclosure } from "@headlessui/react";
 import {
   Bars3Icon,
   BellIcon,
   ChevronDownIcon,
-  XMarkIcon,
   PlusIcon,
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
@@ -14,128 +13,106 @@ import {
   ListBulletIcon,
 } from "@heroicons/react/24/outline";
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
-
-function StatCard({ label, value, delta, icon }) {
-  return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
-          <p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{value}</p>
-          {delta != null && (
-            <p className={classNames("mt-1 text-xs", delta >= 0 ? "text-emerald-600" : "text-red-500")}>
-              {delta >= 0 ? "+" : ""}
-              {delta}% vs last week
-            </p>
-          )}
-        </div>
-        <div className="rounded-lg bg-blue-600/10 p-2.5 ring-1 ring-blue-600/20 dark:bg-blue-500/10 dark:ring-blue-500/20">
-          {icon}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Card({ title, children, action }) {
-  return (
-    <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-      <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3.5 dark:border-gray-800">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{title}</h3>
-        {action}
-      </div>
-      <div className="p-5">{children}</div>
-    </div>
-  );
-}
-
-function PlaceholderChart() {
-  return (
-    <div className="h-40 w-full">
-      <div className="grid h-full grid-cols-12 items-end gap-2">
-        {[35, 50, 28, 64, 44, 72, 60, 80, 52, 66, 48, 74].map((h, i) => (
-          <div
-            key={i}
-            className="rounded-t-md bg-blue-600/70 dark:bg-blue-500/70"
-            style={{ height: `${h}%` }}
-            title={`${h}%`}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function MobileSidebar({ open, setOpen, nav, onLogout }) {
-  return (
-    <Transition.Root show={open} as={Fragment}>
-      <Dialog as="div" className="relative z-40 lg:hidden" onClose={setOpen}>
-        <Transition.Child
-          as={Fragment}
-          enter="transition-opacity ease-linear duration-200"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="transition-opacity ease-linear duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-gray-900/60" />
-        </Transition.Child>
-
-        <div className="fixed inset-0 z-40 flex">
-          <Transition.Child
-            as={Fragment}
-            enter="transition ease-in-out duration-200 transform"
-            enterFrom="-translate-x-full"
-            enterTo="translate-x-0"
-            leave="transition ease-in-out duration-200 transform"
-            leaveFrom="translate-x-0"
-            leaveTo="-translate-x-full"
-          >
-            <Dialog.Panel className="relative mr-16 flex w-full max-w-xs flex-1">
-              <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4 pt-6 dark:bg-gray-900">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="h-9 w-9 rounded-lg bg-blue-600/10 p-2 ring-1 ring-blue-600/20 dark:bg-blue-500/10 dark:ring-blue-500/20" />
-                    <span className="text-base font-semibold text-gray-900 dark:text-white">Dashboard</span>
-                  </div>
-                  <button
-                    type="button"
-                    className="-m-2.5 p-2.5 text-gray-700 dark:text-gray-300"
-                    onClick={() => setOpen(false)}
-                  >
-                    <XMarkIcon className="h-6 w-6" />
-                  </button>
-                </div>
-                <nav className="flex flex-1 flex-col">
-                  <ul role="list" className="-mx-2 space-y-1">
-                    {nav}
-                  </ul>
-                  <div className="mt-auto pt-4">
-                    <button
-                      onClick={onLogout}
-                      className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
-                    >
-                      <ArrowRightOnRectangleIcon className="h-5 w-5" />
-                      Logout
-                    </button>
-                  </div>
-                </nav>
-              </div>
-            </Dialog.Panel>
-          </Transition.Child>
-        </div>
-      </Dialog>
-    </Transition.Root>
-  );
-}
+// Import utility and components
+import { classNames } from "../utils/classNames";
+import { StatCard } from "./ui/StatCard";
+import { Card } from "./ui/Card";
+import { Sources } from "./Sources";
+import { MobileSidebar } from "./MobileSidebar";
 
 export default function Dashboard({ user, onLogout }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [userDataLoading, setUserDataLoading] = useState(true);
+  const [userDataError, setUserDataError] = useState(null);
+  const [sourcesUpdating, setSourcesUpdating] = useState(false);
+
+  // Function to fetch user data from backend
+  const fetchUserData = async () => {
+    try {
+      setUserDataLoading(true);
+      setUserDataError(null);
+      
+      // Get JWT token from localStorage
+      const token = localStorage.getItem('auth_token');
+      
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      // Make API request to the user endpoint
+      const response = await fetch('http://127.0.0.1:5000/user', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch user data: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setUserData(data.user);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      setUserDataError(error.message);
+    } finally {
+      setUserDataLoading(false);
+    }
+  };
+
+  // Function to update sources via API
+  const updateSources = async (newSources) => {
+    try {
+      setSourcesUpdating(true);
+      
+      // Get JWT token from localStorage
+      const token = localStorage.getItem('auth_token');
+      
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      // Make API request to update sources
+      const response = await fetch('http://127.0.0.1:5000/update-sources', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sources: newSources }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Failed to update sources: ${response.status}`);
+      }
+
+      // Get the actual sources from the backend response
+      const responseData = await response.json();
+      const actualSources = responseData.new_sources || newSources;
+
+      // Update local userData state with the actual sources returned by backend
+      setUserData(prev => prev ? { ...prev, sources: actualSources } : null);
+      
+      return actualSources; // Return the actual sources for caller to use
+      
+    } catch (error) {
+      console.error('Error updating sources:', error);
+      alert(`Error updating sources: ${error.message}`);
+      throw error; // Re-throw to handle in calling function
+    } finally {
+      setSourcesUpdating(false);
+    }
+  };
+
+  // Fetch user data when component mounts
+  useEffect(() => {
+    fetchUserData();
+  }, []);
 
   const navigation = [
     { name: "Home", icon: <HomeIcon className="h-5 w-5" />, current: true },
@@ -361,40 +338,51 @@ export default function Dashboard({ user, onLogout }) {
           </div>
 
           <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <div className="lg:col-span-2">
-              <Card
-                title="Traffic overview"
-                action={
-                  <button
-                    onClick={() => setModalOpen(true)}
-                    className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/30"
-                  >
-                    <PlusIcon className="h-4 w-4" />
-                    Add Widget
-                  </button>
-                }
-              >
-                <PlaceholderChart />
+            <div className="lg:col-span-1">
+              <Card title="News Sources">
+                {userDataLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                    <span className="ml-3 text-sm text-gray-600 dark:text-gray-400">Loading...</span>
+                  </div>
+                ) : (
+                  <Sources 
+                    sources={userData?.sources} 
+                    onSourcesUpdate={updateSources}
+                    isUpdating={sourcesUpdating}
+                  />
+                )}
               </Card>
             </div>
 
-            <div className="lg:col-span-1">
-              <Card title="Recent activity">
-                <ul className="space-y-3">
-                  {[
-                    { id: 1, title: "New signup", detail: (user?.email || "user@example.com"), time: "2m ago" },
-                    { id: 2, title: "Task completed", detail: "Design onboarding flow", time: "1h ago" },
-                    { id: 3, title: "New comment", detail: "Review dashboard layout", time: "3h ago" },
-                  ].map((item) => (
-                    <li key={item.id} className="flex items-start justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-200">{item.title}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{item.detail}</p>
-                      </div>
-                      <span className="text-xs text-gray-400">{item.time}</span>
-                    </li>
-                  ))}
-                </ul>
+            <div className="lg:col-span-2">
+              <Card title="User Information">
+                {userDataLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <span className="ml-3 text-sm text-gray-600 dark:text-gray-400">Loading user data...</span>
+                  </div>
+                ) : userDataError ? (
+                  <div className="py-8 text-center">
+                    <p className="text-sm text-red-600 dark:text-red-400">Error: {userDataError}</p>
+                    <button 
+                      onClick={fetchUserData}
+                      className="mt-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                ) : userData ? (
+                  <div className="space-y-3">
+                    <pre className="text-xs text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg overflow-auto whitespace-pre-wrap">
+                      {JSON.stringify(userData, null, 2)}
+                    </pre>
+                  </div>
+                ) : (
+                  <div className="py-8 text-center">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No user data available</p>
+                  </div>
+                )}
               </Card>
             </div>
           </div>

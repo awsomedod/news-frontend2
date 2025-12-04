@@ -18,13 +18,17 @@ export function LoginForm({ onAuthenticated, onGoSignUp }) {
   const [loading, setLoading] = useState(false);
 
   function validate() {
-    const next = {};
-    if (!identifier.trim()) next.identifier = "Email or username is required.";
-    else if (identifier.includes("@") && !validateEmail(identifier)) next.identifier = "Enter a valid email address.";
-    else if (!identifier.includes("@") && !validateUsername(identifier)) next.identifier = "Username must be 3-30 chars, alphanumeric and underscores.";
-    if (!password) next.password = "Password is required.";
-    setErrors(next);
-    return Object.keys(next).length === 0;
+    const loginErrors = {};
+    if (!identifier.trim())
+      loginErrors.identifier = "Email or username is required.";
+    else if (identifier.includes("@") && !validateEmail(identifier))
+      loginErrors.identifier = "Enter a valid email address.";
+    else if (!identifier.includes("@") && !validateUsername(identifier))
+      loginErrors.identifier =
+        "Username must be 3-30 chars, alphanumeric and underscores.";
+    if (!password) loginErrors.password = "Password is required.";
+    setErrors(loginErrors);
+    return Object.keys(loginErrors).length === 0;
   }
 
   async function handleSubmit(e) {
@@ -32,20 +36,39 @@ export function LoginForm({ onAuthenticated, onGoSignUp }) {
     if (!validate()) return;
     setLoading(true);
     try {
-      const { user, token } = await (await import("../../../../api/auth")).login({ identifier, password });
-      try { localStorage.setItem("auth_token", token); localStorage.setItem("auth_user", JSON.stringify(user)); } catch {}
-      onAuthenticated?.({ ...user, token });
+      const { user, token } = await (
+        await import("../../../../api/auth")
+      ).login({ identifier, password });
+      localStorage.setItem("auth_token", token);
+      localStorage.setItem("auth_user", JSON.stringify(user));
+      onAuthenticated({ ...user, token });
     } catch (err) {
       const msg = err?.message || "Login failed";
-      setErrors((prev) => ({ ...prev, password: msg.includes("credentials") ? "Invalid credentials" : msg }));
-    } finally { setLoading(false); }
+      setErrors((prev) => ({
+        ...prev,
+        password: msg.includes("credentials") ? "Invalid credentials" : msg,
+      }));
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <LoginFormFields identifier={identifier} setIdentifier={setIdentifier} password={password} setPassword={setPassword} showPw={showPw} setShowPw={setShowPw} errors={errors} />
+      <LoginFormFields
+        identifier={identifier}
+        setIdentifier={setIdentifier}
+        password={password}
+        setPassword={setPassword}
+        showPw={showPw}
+        setShowPw={setShowPw}
+        errors={errors}
+      />
       <LoginFormActions onGoSignUp={onGoSignUp} />
-      <PrimaryButton type="submit" loading={loading}>Sign in<ArrowRightIcon className="h-4 w-4" /></PrimaryButton>
+      <PrimaryButton type="submit" loading={loading}>
+        Sign in
+        <ArrowRightIcon className="h-4 w-4" />
+      </PrimaryButton>
       <OrDivider />
       <GoogleLogin onAuthenticated={onAuthenticated} />
     </form>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Tab } from "@headlessui/react";
+import { TabGroup, TabPanel, TabPanels } from "@headlessui/react";
 import { AuthLayout } from "./components/AuthLayout";
 import { AuthTabList } from "./components/AuthTabList";
 import { LoginForm } from "./forms/LoginForm/LoginForm";
@@ -13,19 +13,23 @@ export default function AuthScreen({ onAuthenticated }) {
 
   return (
     <AuthLayout>
-      <Tab.Group selectedIndex={activeIndex} onChange={setActiveIndex}>
+      <TabGroup selectedIndex={activeIndex} onChange={setActiveIndex}>
         <AuthTabList />
-        <Tab.Panels className="mt-6">
-          <Tab.Panel>
-            <LoginForm onAuthenticated={onAuthenticated} onGoSignUp={() => setActiveIndex(1)} />
-          </Tab.Panel>
-          <Tab.Panel>
-            <SignUpForm onAuthenticated={onAuthenticated} onGoLogin={() => setActiveIndex(0)} />
-          </Tab.Panel>
-        </Tab.Panels>
-      </Tab.Group>
+        <TabPanels className="mt-6">
+          <TabPanel>
+            <LoginForm
+              onAuthenticated={onAuthenticated}
+              onGoSignUp={() => setActiveIndex(1)}
+            />
+          </TabPanel>
+          <TabPanel>
+            <SignUpForm
+              onAuthenticated={onAuthenticated}
+              onGoLogin={() => setActiveIndex(0)}
+            />
+          </TabPanel>
+        </TabPanels>
+      </TabGroup>
     </AuthLayout>
   );
 }
-
-

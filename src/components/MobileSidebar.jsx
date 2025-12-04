@@ -1,15 +1,24 @@
 import { Fragment } from "react";
-import { Dialog, Transition } from "@headlessui/react";
-import { XMarkIcon, ArrowRightOnRectangleIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
+import {
+  Dialog,
+  Transition,
+  TransitionChild,
+  DialogPanel,
+} from "@headlessui/react";
+import {
+  XMarkIcon,
+  ArrowRightOnRectangleIcon,
+  Squares2X2Icon,
+} from "@heroicons/react/24/outline";
 
 /**
  * MobileSidebar component for mobile navigation
  */
 export function MobileSidebar({ open, setOpen, nav, onLogout }) {
   return (
-    <Transition.Root show={open} as={Fragment}>
+    <Transition show={open} as={Fragment}>
       <Dialog as="div" className="relative z-40 lg:hidden" onClose={setOpen}>
-        <Transition.Child
+        <TransitionChild
           as={Fragment}
           enter="transition-opacity ease-linear duration-200"
           enterFrom="opacity-0"
@@ -19,10 +28,10 @@ export function MobileSidebar({ open, setOpen, nav, onLogout }) {
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-gray-900/60" />
-        </Transition.Child>
+        </TransitionChild>
 
         <div className="fixed inset-0 z-40 flex">
-          <Transition.Child
+          <TransitionChild
             as={Fragment}
             enter="transition ease-in-out duration-200 transform"
             enterFrom="-translate-x-full"
@@ -31,14 +40,16 @@ export function MobileSidebar({ open, setOpen, nav, onLogout }) {
             leaveFrom="translate-x-0"
             leaveTo="-translate-x-full"
           >
-            <Dialog.Panel className="relative mr-16 flex w-full max-w-xs flex-1">
+            <DialogPanel className="relative mr-16 flex w-full max-w-xs flex-1">
               <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4 pt-6 dark:bg-gray-900">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="h-9 w-9 rounded-lg bg-blue-600/10 p-2 ring-1 ring-blue-600/20 dark:bg-blue-500/10 dark:ring-blue-500/20">
                       <Squares2X2Icon className="h-full w-full text-blue-600 dark:text-blue-400" />
                     </div>
-                    <span className="text-base font-semibold text-gray-900 dark:text-white">Dashboard</span>
+                    <span className="text-base font-semibold text-gray-900 dark:text-white">
+                      Dashboard
+                    </span>
                   </div>
                   <button
                     type="button"
@@ -63,10 +74,10 @@ export function MobileSidebar({ open, setOpen, nav, onLogout }) {
                   </div>
                 </nav>
               </div>
-            </Dialog.Panel>
-          </Transition.Child>
+            </DialogPanel>
+          </TransitionChild>
         </div>
       </Dialog>
-    </Transition.Root>
+    </Transition>
   );
 }

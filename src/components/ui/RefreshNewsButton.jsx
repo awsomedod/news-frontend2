@@ -5,7 +5,11 @@ import { NEWS_SERVICE_URL } from "../../api/news_service";
 /**
  * RefreshNewsButton component for generating new news summaries
  */
-export function RefreshNewsButton({ sources = [], onNewsGenerated, disabled = false }) {
+export function RefreshNewsButton({
+  sources = [],
+  onNewsGenerated,
+  disabled = false,
+}) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState(null);
 
@@ -15,40 +19,41 @@ export function RefreshNewsButton({ sources = [], onNewsGenerated, disabled = fa
       setError(null);
 
       // Extract just the URLs from sources
-      const sourceUrls = sources.map(source => source.url).filter(Boolean);
-      
+      const sourceUrls = sources.map((source) => source.url).filter(Boolean);
+
       if (sourceUrls.length === 0) {
-        throw new Error('No sources available. Please add sources first.');
+        throw new Error("No sources available. Please add sources first.");
       }
 
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem("auth_token");
       if (!token) {
-        throw new Error('No authentication token found');
+        throw new Error("No authentication token found");
       }
 
       const response = await fetch(`${NEWS_SERVICE_URL}/generate-news`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ sources: sourceUrls }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || `Failed to generate news: ${response.status}`);
+        throw new Error(
+          errorData.error || `Failed to generate news: ${response.status}`
+        );
       }
 
       const responseData = await response.json();
-      
+
       // Call the callback to refresh user data or handle the new summaries
       if (onNewsGenerated) {
         onNewsGenerated(responseData);
       }
-
     } catch (error) {
-      console.error('Error generating news:', error);
+      console.error("Error generating news:", error);
       setError(error.message);
     } finally {
       setIsGenerating(false);
@@ -64,15 +69,15 @@ export function RefreshNewsButton({ sources = [], onNewsGenerated, disabled = fa
           inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200
           ${
             disabled || isGenerating || sources.length === 0
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600'
-              : 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600 transform hover:scale-105 active:scale-95'
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600"
+              : "bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600 transform hover:scale-105 active:scale-95"
           }
         `}
       >
-        <ArrowPathIcon 
-          className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} 
+        <ArrowPathIcon
+          className={`w-4 h-4 ${isGenerating ? "animate-spin" : ""}`}
         />
-        {isGenerating ? 'Generating News...' : 'Refresh News'}
+        {isGenerating ? "Generating News..." : "Refresh News"}
       </button>
 
       {error && (

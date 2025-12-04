@@ -23,5 +23,3 @@ export function TopBar({ user, onLogout, onOpenSidebar }) {
     </div>
   );
 }
-
-

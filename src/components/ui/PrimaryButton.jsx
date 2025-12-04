@@ -21,5 +21,3 @@ export function PrimaryButton({ children, loading, className = "", ...props }) {
     </button>
   );
 }
-
-

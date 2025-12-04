@@ -14,18 +14,22 @@ export function useDashboardData() {
     try {
       setUserDataLoading(true);
       setUserDataError(null);
-      const token = localStorage.getItem('auth_token');
-      if (!token) throw new Error('No authentication token found');
+      const token = localStorage.getItem("auth_token");
+      if (!token) throw new Error("No authentication token found");
 
       const response = await fetch(`${NEWS_SERVICE_URL}/user`, {
-        method: 'GET',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
-      if (!response.ok) throw new Error(`Failed to fetch user data: ${response.status}`);
+      if (!response.ok)
+        throw new Error(`Failed to fetch user data: ${response.status}`);
       const data = await response.json();
       setUserData(data.user);
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error("Error fetching user data:", error);
       setUserDataError(error.message);
     } finally {
       setUserDataLoading(false);
@@ -35,24 +39,31 @@ export function useDashboardData() {
   const updateSources = async (newSources) => {
     try {
       setSourcesUpdating(true);
-      const token = localStorage.getItem('auth_token');
-      if (!token) throw new Error('No authentication token found');
+      const token = localStorage.getItem("auth_token");
+      if (!token) throw new Error("No authentication token found");
 
       const response = await fetch(`${NEWS_SERVICE_URL}/update-sources`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ sources: newSources }),
       });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || `Failed to update sources: ${response.status}`);
+        throw new Error(
+          errorData.error || `Failed to update sources: ${response.status}`
+        );
       }
       const responseData = await response.json();
       const actualSources = responseData.new_sources || newSources;
-      setUserData(prev => prev ? { ...prev, sources: actualSources } : null);
+      setUserData((prev) =>
+        prev ? { ...prev, sources: actualSources } : null
+      );
       return actualSources;
     } catch (error) {
-      console.error('Error updating sources:', error);
+      console.error("Error updating sources:", error);
       alert(`Error updating sources: ${error.message}`);
       throw error;
     } finally {
@@ -60,8 +71,16 @@ export function useDashboardData() {
     }
   };
 
-  useEffect(() => { fetchUserData(); }, []);
+  useEffect(() => {
+    fetchUserData();
+  }, []);
 
-  return { userData, userDataLoading, userDataError, sourcesUpdating, fetchUserData, updateSources };
+  return {
+    userData,
+    userDataLoading,
+    userDataError,
+    sourcesUpdating,
+    fetchUserData,
+    updateSources,
+  };
 }
-

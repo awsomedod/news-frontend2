@@ -1,4 +1,4 @@
-import { Tab } from "@headlessui/react";
+import { Tab, TabList } from "@headlessui/react";
 import { classNames } from "../../../utils/classNames";
 
 /**
@@ -6,7 +6,7 @@ import { classNames } from "../../../utils/classNames";
  */
 export function AuthTabList() {
   return (
-    <Tab.List className="grid grid-cols-2 gap-2 rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
+    <TabList className="grid grid-cols-2 gap-2 rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
       {["Login", "Sign Up"].map((tab) => (
         <Tab
           key={tab}
@@ -22,8 +22,6 @@ export function AuthTabList() {
           {tab}
         </Tab>
       ))}
-    </Tab.List>
+    </TabList>
   );
 }
-
-

@@ -13,5 +13,3 @@ export function WelcomeSection({ user }) {
     </div>
   );
 }
-
-

@@ -17,4 +17,3 @@ export function AddSourceButton({ onClick, isUpdating }) {
     </button>
   );
 }
-

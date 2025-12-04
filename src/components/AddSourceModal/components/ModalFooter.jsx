@@ -24,10 +24,9 @@ export function ModalFooter({ onCancel, onAdd, isAdding, showAddButton }) {
           ) : (
             <PlusIcon className="h-4 w-4" />
           )}
-          {isAdding ? 'Adding...' : 'Add Source'}
+          {isAdding ? "Adding..." : "Add Source"}
         </button>
       )}
     </div>
   );
 }
-

@@ -10,34 +10,36 @@ export function useSuggestions(persistedTopic, setPersistedSuggestions) {
 
   const getSuggestions = async () => {
     if (!persistedTopic.trim()) {
-      alert('Please enter a topic');
+      alert("Please enter a topic");
       return;
     }
 
     setSuggestionsLoading(true);
     try {
-      const token = localStorage.getItem('auth_token');
-      if (!token) throw new Error('No authentication token found');
+      const token = localStorage.getItem("auth_token");
+      if (!token) throw new Error("No authentication token found");
 
       const response = await fetch(`${NEWS_SERVICE_URL}/suggest-sources`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ topic: persistedTopic }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || `Failed to get suggestions: ${response.status}`);
+        throw new Error(
+          errorData.error || `Failed to get suggestions: ${response.status}`
+        );
       }
 
       const data = await response.json();
       setPersistedSuggestions(data.sources || []);
       setSelectedSuggestions(new Set());
     } catch (error) {
-      console.error('Error getting suggestions:', error);
+      console.error("Error getting suggestions:", error);
       alert(`Error getting suggestions: ${error.message}`);
     } finally {
       setSuggestionsLoading(false);
@@ -53,6 +55,11 @@ export function useSuggestions(persistedTopic, setPersistedSuggestions) {
 
   const clearSelections = () => setSelectedSuggestions(new Set());
 
-  return { suggestionsLoading, selectedSuggestions, getSuggestions, toggleSelection, clearSelections };
+  return {
+    suggestionsLoading,
+    selectedSuggestions,
+    getSuggestions,
+    toggleSelection,
+    clearSelections,
+  };
 }
-

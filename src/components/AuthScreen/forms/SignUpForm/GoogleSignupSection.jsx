@@ -25,12 +25,11 @@ export function GoogleSignupSection({ onAuthenticated }) {
         icon={<UserCircleIcon className="h-5 w-5" />}
         autoComplete="username"
       />
-      <GoogleSignup 
-        username={googleUsername} 
-        setErrors={setGoogleErrors} 
-        onAuthenticated={onAuthenticated} 
+      <GoogleSignup
+        username={googleUsername}
+        setErrors={setGoogleErrors}
+        onAuthenticated={onAuthenticated}
       />
     </div>
   );
 }
-

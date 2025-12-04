@@ -22,11 +22,9 @@ export function GoogleLogin({ onAuthenticated }) {
           try {
             const { loginWithGoogle } = await import("../../../api/auth");
             const { token, user } = await loginWithGoogle({ id_token });
-            try {
-              localStorage.setItem("auth_token", token);
-              localStorage.setItem("auth_user", JSON.stringify(user));
-            } catch {}
-            onAuthenticated?.({ ...user, token });
+            localStorage.setItem("auth_token", token);
+            localStorage.setItem("auth_user", JSON.stringify(user));
+            onAuthenticated({ ...user, token });
           } catch (e) {
             setErr(e?.message || "Google login failed");
           }
@@ -56,5 +54,3 @@ export function GoogleLogin({ onAuthenticated }) {
     </div>
   );
 }
-
-

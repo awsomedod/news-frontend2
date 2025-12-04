@@ -23,9 +23,12 @@ export default function Login({ onAuthenticated }) {
     if (!identifier.trim()) {
       next.identifier = "Email or username is required.";
     } else if (identifier.includes("@")) {
-      if (!validateEmail(identifier)) next.identifier = "Enter a valid email address.";
+      if (!validateEmail(identifier))
+        next.identifier = "Enter a valid email address.";
     } else {
-      if (!validateUsername(identifier)) next.identifier = "Username must be 3-30 chars, alphanumeric and underscores.";
+      if (!validateUsername(identifier))
+        next.identifier =
+          "Username must be 3-30 chars, alphanumeric and underscores.";
     }
     if (!password) next.password = "Password is required.";
     setErrors(next);
@@ -39,7 +42,12 @@ export default function Login({ onAuthenticated }) {
     setTimeout(() => {
       const mockUser = identifier.includes("@")
         ? { id: "1", name: "New User", email: identifier, username: "user_1" }
-        : { id: "1", name: "New User", email: "user@example.com", username: identifier };
+        : {
+            id: "1",
+            name: "New User",
+            email: "user@example.com",
+            username: identifier,
+          };
       onAuthenticated?.(mockUser);
       setLoading(false);
     }, 900);
@@ -54,7 +62,13 @@ export default function Login({ onAuthenticated }) {
         onChange={(e) => setIdentifier(e.target.value)}
         placeholder="you@example.com or user_name"
         error={errors.identifier}
-        icon={identifier.includes("@") ? <AtSymbolIcon className="h-5 w-5" /> : <UserCircleIcon className="h-5 w-5" />}
+        icon={
+          identifier.includes("@") ? (
+            <AtSymbolIcon className="h-5 w-5" />
+          ) : (
+            <UserCircleIcon className="h-5 w-5" />
+          )
+        }
         autoComplete="username"
       />
       <TextField
@@ -66,7 +80,13 @@ export default function Login({ onAuthenticated }) {
         placeholder="••••••••"
         error={errors.password}
         icon={<LockClosedIcon className="h-5 w-5" />}
-        rightIcon={showPw ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+        rightIcon={
+          showPw ? (
+            <EyeSlashIcon className="h-5 w-5" />
+          ) : (
+            <EyeIcon className="h-5 w-5" />
+          )
+        }
         onRightIconClick={() => setShowPw((s) => !s)}
         autoComplete="current-password"
       />

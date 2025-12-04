@@ -12,7 +12,9 @@ export function AuthLayout({ children }) {
             <div className="mx-auto mb-3 h-12 w-12 rounded-xl bg-blue-600/10 p-2.5 ring-1 ring-blue-600/20 dark:bg-blue-500/10 dark:ring-blue-500/20">
               <LockClosedIcon className="h-full w-full text-blue-600 dark:text-blue-400" />
             </div>
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Welcome</h1>
+            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              Welcome
+            </h1>
             <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
               Sign in to your account or create a new one
             </p>
@@ -25,5 +27,3 @@ export function AuthLayout({ children }) {
     </div>
   );
 }
-
-

@@ -22,13 +22,13 @@ export function SummaryRun({ summaryRun }) {
   const formatDate = (dateString) => {
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+      return date.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
       });
     } catch {
       return dateString; // Fallback to original string if parsing fails
@@ -51,9 +51,9 @@ export function SummaryRun({ summaryRun }) {
       {/* Summaries Grid */}
       <div className="space-y-3">
         {summaryRun.summaries?.map((summary, index) => (
-          <SummaryCard 
-            key={index} 
-            summary={summary} 
+          <SummaryCard
+            key={index}
+            summary={summary}
             onClick={handleSummaryClick}
           />
         )) || (

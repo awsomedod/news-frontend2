@@ -6,8 +6,8 @@ export function SuggestedSourceItem({ source, index, isSelected, onToggle }) {
     <div
       className={`rounded-lg border p-3 transition-colors cursor-pointer ${
         isSelected
-          ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-950/20'
-          : 'border-gray-200 bg-gray-50 hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600'
+          ? "border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-950/20"
+          : "border-gray-200 bg-gray-50 hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600"
       }`}
       onClick={() => onToggle(index)}
     >
@@ -33,5 +33,3 @@ export function SuggestedSourceItem({ source, index, isSelected, onToggle }) {
     </div>
   );
 }
-
-

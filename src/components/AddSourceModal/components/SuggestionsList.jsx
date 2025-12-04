@@ -4,11 +4,11 @@ import { SuggestedSourceItem } from "./SuggestedSourceItem";
 /**
  * SuggestionsList component for displaying AI-suggested sources
  */
-export function SuggestionsList({ 
-  suggestions, 
-  selectedSuggestions, 
-  onToggle, 
-  onAddSelected 
+export function SuggestionsList({
+  suggestions,
+  selectedSuggestions,
+  onToggle,
+  onAddSelected,
 }) {
   if (suggestions.length === 0) return null;
 
@@ -42,4 +42,3 @@ export function SuggestionsList({
     </div>
   );
 }
-

@@ -13,5 +13,3 @@ export function validateUsername(username) {
   const re = /^[A-Za-z0-9_]{3,30}$/;
   return re.test(username);
 }
-
-

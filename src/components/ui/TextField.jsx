@@ -19,13 +19,18 @@ export function TextField({
 }) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-700 dark:text-gray-200"
+      >
         {label}
       </label>
       <div
         className={classNames(
           "relative rounded-lg border bg-white dark:bg-gray-800",
-          error ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-gray-700",
+          error
+            ? "border-red-400 dark:border-red-500"
+            : "border-gray-300 dark:border-gray-700",
           "focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500"
         )}
       >
@@ -69,5 +74,3 @@ export function TextField({
     </div>
   );
 }
-
-

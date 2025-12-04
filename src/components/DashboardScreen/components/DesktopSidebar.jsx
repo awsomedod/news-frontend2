@@ -1,4 +1,7 @@
-import { ArrowRightOnRectangleIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
+import {
+  ArrowRightOnRectangleIcon,
+  Squares2X2Icon,
+} from "@heroicons/react/24/outline";
 import { NavList } from "./NavList";
 
 /**
@@ -12,7 +15,9 @@ export function DesktopSidebar({ onLogout }) {
           <div className="h-9 w-9 rounded-lg bg-blue-600/10 p-2 ring-1 ring-blue-600/20 dark:bg-blue-500/10 dark:ring-blue-500/20">
             <Squares2X2Icon className="h-full w-full text-blue-600 dark:text-blue-400" />
           </div>
-          <span className="text-base font-semibold text-gray-900 dark:text-white">Dashboard</span>
+          <span className="text-base font-semibold text-gray-900 dark:text-white">
+            Dashboard
+          </span>
         </div>
         <nav className="flex flex-1 flex-col">
           <ul role="list" className="-mx-2 space-y-1">
@@ -32,5 +37,3 @@ export function DesktopSidebar({ onLogout }) {
     </div>
   );
 }
-
-

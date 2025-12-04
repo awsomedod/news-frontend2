@@ -15,5 +15,3 @@ export function OrDivider({ text = "or" }) {
     </div>
   );
 }
-
-

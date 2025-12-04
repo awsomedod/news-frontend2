@@ -1,12 +1,16 @@
 import { Fragment } from "react";
-import { Disclosure } from "@headlessui/react";
+import {
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+} from "@headlessui/react";
 import { ChevronDownIcon, HomeIcon } from "@heroicons/react/24/outline";
 import { classNames } from "../../../utils/classNames";
 
 /**
  * Navigation items configuration
  */
-export const navigation = [
+const navigation = [
   { name: "Home", icon: <HomeIcon className="h-5 w-5" />, current: true },
 ];
 
@@ -22,7 +26,7 @@ export function NavList() {
             <Disclosure>
               {({ open }) => (
                 <div>
-                  <Disclosure.Button
+                  <DisclosureButton
                     className={classNames(
                       "flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
                       item.current && "bg-gray-100 dark:bg-gray-800"
@@ -31,10 +35,13 @@ export function NavList() {
                     {item.icon}
                     <span className="flex-1 text-left">{item.name}</span>
                     <ChevronDownIcon
-                      className={classNames("h-4 w-4 transition", open ? "rotate-180" : "rotate-0")}
+                      className={classNames(
+                        "h-4 w-4 transition",
+                        open ? "rotate-180" : "rotate-0"
+                      )}
                     />
-                  </Disclosure.Button>
-                  <Disclosure.Panel>
+                  </DisclosureButton>
+                  <DisclosurePanel>
                     <ul className="mt-1 space-y-1 pl-8">
                       {item.children.map((sub) => (
                         <li key={sub.name}>
@@ -44,7 +51,7 @@ export function NavList() {
                         </li>
                       ))}
                     </ul>
-                  </Disclosure.Panel>
+                  </DisclosurePanel>
                 </div>
               )}
             </Disclosure>
@@ -66,5 +73,3 @@ export function NavList() {
     </Fragment>
   );
 }
-
-

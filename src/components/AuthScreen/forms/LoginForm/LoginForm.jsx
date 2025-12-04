@@ -7,11 +7,16 @@ import {
   LockClosedIcon,
   ArrowRightIcon,
 } from "@heroicons/react/24/outline";
-import { TextField } from "./ui/TextField";
-import { PrimaryButton } from "./ui/PrimaryButton";
-import { validateEmail, validateUsername } from "../utils/validation";
+import { TextField } from "../../../ui/TextField";
+import { PrimaryButton } from "../../../ui/PrimaryButton";
+import { OrDivider } from "../../../ui/OrDivider";
+import { GoogleLogin } from "../GoogleLogin";
+import { validateEmail, validateUsername } from "../../../../utils/validation";
 
-export default function Login({ onAuthenticated }) {
+/**
+ * LoginForm component for user authentication
+ */
+export function LoginForm({ onAuthenticated, onGoSignUp }) {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -23,26 +28,40 @@ export default function Login({ onAuthenticated }) {
     if (!identifier.trim()) {
       next.identifier = "Email or username is required.";
     } else if (identifier.includes("@")) {
-      if (!validateEmail(identifier)) next.identifier = "Enter a valid email address.";
+      if (!validateEmail(identifier)) {
+        next.identifier = "Enter a valid email address.";
+      }
     } else {
-      if (!validateUsername(identifier)) next.identifier = "Username must be 3-30 chars, alphanumeric and underscores.";
+      if (!validateUsername(identifier)) {
+        next.identifier = "Username must be 3-30 chars, alphanumeric and underscores.";
+      }
     }
     if (!password) next.password = "Password is required.";
     setErrors(next);
     return Object.keys(next).length === 0;
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
-    setTimeout(() => {
-      const mockUser = identifier.includes("@")
-        ? { id: "1", name: "New User", email: identifier, username: "user_1" }
-        : { id: "1", name: "New User", email: "user@example.com", username: identifier };
-      onAuthenticated?.(mockUser);
+    try {
+      const { user, token } = await (await import("../../../../api/auth")).login({
+        identifier,
+        password,
+      });
+      // Persist token + user for session restoration
+      try {
+        localStorage.setItem("auth_token", token);
+        localStorage.setItem("auth_user", JSON.stringify(user));
+      } catch {}
+      onAuthenticated?.({ ...user, token });
+    } catch (err) {
+      const msg = err?.message || "Login failed";
+      setErrors((prev) => ({ ...prev, identifier: undefined, password: msg.includes("credentials") ? "Invalid credentials" : msg }));
+    } finally {
       setLoading(false);
-    }, 900);
+    }
   }
 
   return (
@@ -70,10 +89,26 @@ export default function Login({ onAuthenticated }) {
         onRightIconClick={() => setShowPw((s) => !s)}
         autoComplete="current-password"
       />
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-gray-500 dark:text-gray-400">
+          Create an account?
+          {" "}
+          <button type="button" onClick={onGoSignUp} className="link-primary ml-1">
+            Sign up
+          </button>
+        </span>
+        <button type="button" className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+          Forgot password?
+        </button>
+      </div>
       <PrimaryButton type="submit" loading={loading}>
         Sign in
         <ArrowRightIcon className="h-4 w-4" />
       </PrimaryButton>
+      <OrDivider />
+      <GoogleLogin onAuthenticated={onAuthenticated} />
     </form>
   );
 }
+
+

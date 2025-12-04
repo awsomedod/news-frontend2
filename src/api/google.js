@@ -25,7 +25,8 @@ function loadGisScript() {
       gisLoaded = true;
       resolve();
     };
-    script.onerror = () => reject(new Error("Failed to load Google Identity Services script"));
+    script.onerror = () =>
+      reject(new Error("Failed to load Google Identity Services script"));
     document.head.appendChild(script);
   });
 
@@ -38,9 +39,12 @@ function loadGisScript() {
  * If you want a rendered button, you can alternatively use renderButton + prompt.
  */
 export async function getGoogleIdToken() {
-  const clientId = "802693362877-2ad452kd7mmm9jlgje6aigfunsb3065g.apps.googleusercontent.com";
+  const clientId =
+    "802693362877-2ad452kd7mmm9jlgje6aigfunsb3065g.apps.googleusercontent.com";
   if (!clientId) {
-    throw new Error("Missing VITE_GOOGLE_CLIENT_ID. Set it in your environment.");
+    throw new Error(
+      "Missing VITE_GOOGLE_CLIENT_ID. Set it in your environment."
+    );
   }
 
   await loadGisScript();
@@ -73,8 +77,10 @@ export async function getGoogleIdToken() {
       google.accounts.id.prompt((notification) => {
         if (resolved) return;
         const reason =
-          (typeof notification.getNotDisplayedReason === "function" && notification.getNotDisplayedReason()) ||
-          (typeof notification.getSkippedReason === "function" && notification.getSkippedReason()) ||
+          (typeof notification.getNotDisplayedReason === "function" &&
+            notification.getNotDisplayedReason()) ||
+          (typeof notification.getSkippedReason === "function" &&
+            notification.getSkippedReason()) ||
           "dismissed";
         reject(new Error(`Google Sign-In was not completed: ${reason}`));
       });
@@ -91,10 +97,17 @@ export async function getGoogleIdToken() {
  * Example:
  *   renderGoogleButton(containerEl, { theme: "outline", size: "large" }, (idToken) => { ... });
  */
-export async function renderGoogleButton(containerEl, options = {}, onCredential) {
-  const clientId = "802693362877-2ad452kd7mmm9jlgje6aigfunsb3065g.apps.googleusercontent.com";
+export async function renderGoogleButton(
+  containerEl,
+  options = {},
+  onCredential
+) {
+  const clientId =
+    "802693362877-2ad452kd7mmm9jlgje6aigfunsb3065g.apps.googleusercontent.com";
   if (!clientId) {
-    throw new Error("Missing VITE_GOOGLE_CLIENT_ID. Set it in your environment.");
+    throw new Error(
+      "Missing VITE_GOOGLE_CLIENT_ID. Set it in your environment."
+    );
   }
   if (!containerEl) {
     throw new Error("Container element is required to render Google button.");
@@ -102,7 +115,6 @@ export async function renderGoogleButton(containerEl, options = {}, onCredential
 
   await loadGisScript();
 
-  /* global google */
   if (!window.google || !google.accounts || !google.accounts.id) {
     throw new Error("Google Identity Services not available");
   }
@@ -122,10 +134,10 @@ export async function renderGoogleButton(containerEl, options = {}, onCredential
   containerEl.innerHTML = "";
 
   const defaultOptions = {
-    type: "standard",     // icon | standard
-    theme: "outline",     // outline | filled_blue | filled_black
-    size: "large",        // small | medium | large
-    text: "signin_with",  // signin_with | signup_with | continue_with | signIn
+    type: "standard", // icon | standard
+    theme: "outline", // outline | filled_blue | filled_black
+    size: "large", // small | medium | large
+    text: "signin_with", // signin_with | signup_with | continue_with | signIn
     shape: "rectangular", // rectangular | pill | circle | square
     logo_alignment: "left",
   };
@@ -134,6 +146,8 @@ export async function renderGoogleButton(containerEl, options = {}, onCredential
   try {
     google.accounts.id.renderButton(containerEl, renderOptions);
   } catch (e) {
-    throw new Error("Failed to render Google Sign-In button");
+    throw new Error(
+      `Failed to render Google Sign-In button, Error: ${e.message}`
+    );
   }
 }

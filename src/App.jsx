@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import AuthSystem from './components/AuthSystem'
-import Dashboard from './components/Dashboard'
+import AuthSystem from './components/AuthScreen'
+import Dashboard from './components/DashboardScreen'
 
 function isJwtExpired(token) {
   try {
@@ -47,10 +47,8 @@ function App() {
 
   const handleLogout = () => {
     // Clear persistence
-    try {
-      localStorage.removeItem('auth_token')
-      localStorage.removeItem('auth_user')
-    } catch {}
+    localStorage.removeItem('auth_token')
+    localStorage.removeItem('auth_user')
     setUser(null)
     setIsAuthenticated(false)
   }
